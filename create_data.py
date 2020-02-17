@@ -12,11 +12,9 @@ from config import load_data_config
 
 class OdeModel:
     def __init__(self, args, sample_size, state_size):
-        # self.sample_size = [sample_size] if type(sample_size) == int else sample_size
         self.sample_size = sample_size
         self.state_size = state_size
         self.seq_len = args.seq_len
-        # self.params = params
         self.dtype = np.float64
 
     def init_random_state(self):
@@ -42,14 +40,11 @@ class CVS(OdeModel):
     def __init__(self, args):
         super(CVS, self).__init__(args=args,
                                   sample_size=3,
-                                  state_size=4) # FIXME
+                                  state_size=4)
 
     def init_random_state(self):
-        max_ves = 64.0 - 10.0
-        min_ves = 36.0 + 10.0
-
-        max_ved = 167.0 - 10.0
-        min_ved = 121.0 + 10.0
+        max_sv = 1.0
+        min_sv = 0.9
 
         max_pa = 85.0
         min_pa = 75.0
@@ -60,21 +55,12 @@ class CVS(OdeModel):
         max_s = 0.25
         min_s = 0.15
 
-        init_ves = (np.random.rand() * (max_ves - min_ves) + min_ves) / 100.0
-        # init_ves = 50.0 / 100.0
-
-        init_ved = (np.random.rand() * (max_ved - min_ved) + min_ved) / 100.0
-        # init_ved = 144.0 / 100.0
-
-        init_sv = (np.random.rand() * (1.0 - 0.9) + 0.9)  # FIXME
-        # init_sv = 0.95
-
+        init_sv = (np.random.rand() * (max_sv - min_sv) + min_sv)
         init_pa = (np.random.rand() * (max_pa - min_pa) + min_pa) / 100.0
         init_pv = (np.random.rand() * (max_pv - min_pv) + min_pv) / 10.0
         init_s = (np.random.rand() * (max_s - min_s) + min_s)
 
-        # init_state = np.array([init_ves, init_ved, init_pa, init_pv, init_s]) # FIXME
-        init_state = np.array([init_pa, init_pv, init_s, init_sv]) # FIXME
+        init_state = np.array([init_pa, init_pv, init_s, init_sv])
         return init_state
 
     @staticmethod
@@ -85,31 +71,18 @@ class CVS(OdeModel):
         f_hr_min = params["f_hr_min"]
         r_tpr_max = params["r_tpr_max"]
         r_tpr_min = params["r_tpr_min"]
-        # sv = 100.0 * params["sv"]  # SV is also known as: SV = V_ED - V_ES
         ca = params["ca"]
         cv = params["cv"]
         k_width = params["k_width"]
         p_aset = params["p_aset"]
         tau = params["tau"]
-        p_0lv = params["p_0lv"]
-        r_valve = params["r_valve"]
-        k_elv = params["k_elv"]
-        v_ed0 = params["v_ed0"]
-        t_sys = params["T_sys"]
-        cprsw_max = params["cprsw_max"]
-        cprsw_min = params["cprsw_min"]
 
         # Unknown parameters:
         i_ext = params["i_ext"]
         r_tpr_mod = params["r_tpr_mod"]
-        sv_mod = params["sv_mod"]  # FIXME
+        sv_mod = params["sv_mod"]
 
         # State variables
-        # v_es = 100. * state[0] # FIXME
-        # v_ed = 100. * state[1]
-        # p_a = 100. * state[2]
-        # p_v = 10. * state[3]
-        # s = state[4]
         p_a = 100. * state[0]
         p_v = 10. * state[1]
         s = state[2]
@@ -119,32 +92,7 @@ class CVS(OdeModel):
         f_hr = s * (f_hr_max - f_hr_min) + f_hr_min
         r_tpr = s * (r_tpr_max - r_tpr_min) + r_tpr_min - r_tpr_mod
 
-        # Building I_ext
-        # i_inf = params["i_inf"] * (1. - 1. / (1. + np.exp(-(params["i_inf_scale"]*(t-params["i_inf_stop"])))))
-        # i_loss = params["i_loss"] * (100.0 * p_a - 10.0 * p_v) / r_tpr
-        # i_ext = i_inf - i_loss
-        # i_ext = 0.0
-
-        # # Building dv_ed/dt: # FIXME
-        # k1 = -1. * (p_0lv / r_valve) * np.exp(-k_elv * v_ed0)
-        # k2 = k_elv
-        # k3 = (p_v + p_0lv) / r_valve
-        # ved_hat_t = (1. / f_hr) - t_sys
-        # ved_hat = (-1./k2) * np.log(
-        #     (k1/k3) * (np.exp(-k2*k3*ved_hat_t) - 1.) + np.exp(-k2*(v_es + k3 * ved_hat_t)))
-        # p_lv_v_es = p_0lv * (np.exp(k_elv * (v_es - v_ed0)) - 1.)
-        # ved_tilde = ved_hat if p_v > p_lv_v_es else v_es
-        # dved_dt = ((ved_tilde - v_ed) * f_hr) / 100.
-        #
-        # # Building dv_es/dt:
-        # cprsw = s * (cprsw_max - cprsw_min) + cprsw_min
-        # p_lv_v_ed = p_0lv * (np.exp(k_elv * (v_ed - v_ed0)) - 1.)
-        # ves_hat = v_ed - cprsw * (v_ed - v_ed0) / (p_a - p_lv_v_ed)
-        # ves_tilde = np.maximum(ves_hat, v_ed0) if p_a > p_lv_v_ed else v_ed0
-        # dves_dt = ((ves_tilde - v_es) * f_hr) / 100.
-
         # Building dp_a/dt and dp_v/dt:
-        # sv = v_ed - v_es # FIXME
         dva_dt = -1. * (p_a - p_v) / r_tpr + sv * f_hr
         dvv_dt = -1. * dva_dt + i_ext
         dpa_dt = dva_dt / (ca * 100.)
@@ -156,14 +104,9 @@ class CVS(OdeModel):
         dsv_dt = i_ext * sv_mod
 
         # State derivative
-        # return np.array([dves_dt, dved_dt, dpa_dt, dpv_dt, ds_dt]) # FIXME
-        return np.array([dpa_dt, dpv_dt, ds_dt, dsv_dt])  # FIXME
+        return np.array([dpa_dt, dpv_dt, ds_dt, dsv_dt])
 
     def states_trajectory_to_sample(self, states, params):
-        # p_a = states[:, 2] # FIXME
-        # p_v = states[:, 3]
-        # s = states[:, 4]
-
         p_a = states[:, 0]
         p_v = states[:, 1]
         s = states[:, 2]
@@ -196,7 +139,6 @@ class CVS(OdeModel):
     @staticmethod
     def get_random_params():
         i_ext = 0.0 if np.random.rand() > 0.5 else -2.0
-        sv_mod = 0.0001
         r_tpr_mod = 0.0 if np.random.rand() > 0.5 else 0.5
 
         return {"i_ext": i_ext,
@@ -205,8 +147,7 @@ class CVS(OdeModel):
                 "f_hr_min": 2.0 / 3.0,
                 "r_tpr_max": 2.134,
                 "r_tpr_min": 0.5335,
-                # "sv": sv,
-                "sv_mod": sv_mod,
+                "sv_mod": 0.0001,
                 "ca": 4.0,
                 "cv": 111.0,
 
@@ -232,11 +173,6 @@ class LV(OdeModel):
 
     def init_random_state(self):
         init_state = np.random.uniform(1.5, 3.0, size=self.state_size)
-        # init_state = np.array([1.1, 1.0]) if np.random.random() > 0.5 else np.array([3.0, 3.0])
-        # init_state = np.array([5.0, 3.0])
-        # init_prey = np.random.uniform(30.0, 70.0)
-        # init_predator = np.random.uniform(10.0, 50.0)
-        # init_state = np.array([init_prey, init_predator])
         return init_state
 
     @staticmethod
@@ -271,11 +207,7 @@ class LV(OdeModel):
     @staticmethod
     def get_random_params():
         rand_params = np.random.uniform(1.0, 2.0, size=4)
-        # rand_params = np.random.uniform(1.5, 2.5, size=2)
-
         params = {"a": rand_params[0], "b": rand_params[1], "c": rand_params[2], "d": rand_params[3]}
-        # params = {"a": 1.0, "b": 1.0, "c": 1.0, "d": 1.0}
-
         return params
 
 
