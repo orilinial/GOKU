@@ -5,7 +5,6 @@ def load_data_config(args):
         args.data_size = 10000
         args.delta_t = 0.05
         args.noise_std = 0.01
-        args.mask_rate = 0.01
         args.new_dataset = True
 
     if args.model == 'CVS':
@@ -14,7 +13,6 @@ def load_data_config(args):
         args.data_size = 1000
         args.delta_t = 1.0
         args.noise_std = 0.01
-        args.mask_rate = 0.05
         args.new_dataset = True
 
     if args.model == 'Pendulum':
@@ -23,7 +21,6 @@ def load_data_config(args):
         args.data_size = 500
         args.delta_t = 0.05
         args.noise_std = 0.0
-        args.mask_rate = 0.01
         args.new_dataset = True
         args.data_set = 1
 
@@ -78,6 +75,54 @@ def load_goku_train_config(args):
         args.kl_start_af = 0.00001
         args.kl_end_af = 0.00001
         args.grounding_loss = 0.0
+
+    return args
+
+
+def load_latent_ode_train_config(args):
+    if args.model == 'lv':
+        args.num_epochs = 400
+        args.mini_batch_size = 256
+        args.seq_len = 100
+        args.delta_t = 0.05
+        args.data_path = 'data/lv/'
+        args.norm = 'zscore'
+        args.kl_annealing_epochs = 200
+        args.kl_start_af = 0.00001
+        args.kl_end_af = 0.00001
+
+    if args.model == 'pixel_pendulum':
+        args.num_epochs = 1600
+        args.mini_batch_size = 128
+        args.seq_len = 50
+        args.delta_t = 0.05
+        args.data_path = 'data/pendulum/'
+        args.norm = 'zero_to_one'
+        args.kl_annealing_epochs = 200
+        args.kl_start_af = 0.00001
+        args.kl_end_af = 0.00001
+
+    if args.model == 'pixel_pendulum_friction':
+        args.num_epochs = 1600
+        args.mini_batch_size = 128
+        args.seq_len = 50
+        args.delta_t = 0.05
+        args.data_path = 'data/pendulum_friction/'
+        args.norm = 'zero_to_one'
+        args.kl_annealing_epochs = 200
+        args.kl_start_af = 0.00001
+        args.kl_end_af = 0.00001
+
+    if args.model == 'cvs':
+        args.num_epochs = 400
+        args.mini_batch_size = 128
+        args.seq_len = 200
+        args.delta_t = 1.0
+        args.data_path = 'data/cvs/'
+        args.model = 'cvs'
+        args.kl_annealing_epochs = 200
+        args.kl_start_af = 0.00001
+        args.kl_end_af = 0.00001
 
     return args
 

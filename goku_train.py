@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import torch
-from tqdm import tqdm, trange
 from utils import ODE_dataset, utils
 import models
 import os
@@ -54,10 +53,10 @@ def train(args):
     best_model = models.__dict__["create_goku_" + args.model](ode_method=args.method).to(device)
     best_val_loss = np.inf
 
-    for epoch in trange(args.num_epochs):
+    for epoch in range(args.num_epochs):
         epoch_loss_array = []
 
-        for i_batch, (mini_batch, latent_batch, latent_mask) in enumerate(tqdm(train_dataloader)):
+        for i_batch, (mini_batch, latent_batch, latent_mask) in enumerate(train_dataloader):
             mini_batch = mini_batch.to(device)
             latent_batch = latent_batch.to(device)
             latent_mask = latent_mask.to(device)

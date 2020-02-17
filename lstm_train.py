@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import torch
-from tqdm import tqdm, trange
 from utils import ODE_dataset, utils
 import os
 import models
@@ -34,10 +33,10 @@ def train(args):
 
     mse_loss = torch.nn.MSELoss()
 
-    for epoch in trange(args.num_epochs):
+    for epoch in range(args.num_epochs):
         epoch_loss_array = []
 
-        for i_batch, (mini_batch, latent, mask) in enumerate(tqdm(train_dataloader)):
+        for i_batch, (mini_batch, latent, mask) in enumerate(train_dataloader):
             target = mini_batch[:, -1].to(device)
             mini_batch = mini_batch[:, :-1].to(device)
 

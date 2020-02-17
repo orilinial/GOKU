@@ -1,7 +1,6 @@
 import numpy as np
 from scipy import integrate
 import argparse
-from tqdm import trange
 import matplotlib.pyplot as plt
 import torch
 from utils.utils import set_seed, StatesToSamples
@@ -288,7 +287,7 @@ def sample_gym(args, side=28):
     latent_data = np.zeros((args.data_size, args.seq_len, 2))
     params_data = []
 
-    for trial in trange(args.data_size):
+    for trial in range(args.data_size):
         gym_utils.reset_env(env)
         params = gym_utils.get_params()  # This is a learned parameter - pendulum's length
         additional_params = gym_utils.get_unlearned_params()  # This parameter controls friction and isn't learned
@@ -322,7 +321,7 @@ def create_raw_data(args):
     latent_data = np.zeros((args.data_size, args.seq_len, ode_model.state_size))
     params_data = []
 
-    for i in trange(args.data_size):
+    for i in range(args.data_size):
         # initial state
         init_state = ode_model.init_random_state()
         params = ode_model.get_random_params()
@@ -439,7 +438,7 @@ if __name__ == '__main__':
     parser.add_argument('--data-size', type=int)
     parser.add_argument('--delta-t', '-dt', type=float)
     parser.add_argument('--noise-std', type=float)
-    parser.add_argument('--mask-rate', type=float)
+    parser.add_argument('--mask-rate', type=float, default=0.01)
     parser.add_argument('--model', choices=['CVS', 'LV', 'Pendulum'], required=True)
     parser.add_argument('--new-dataset', action='store_true')
     parser.add_argument('--friction', action='store_true')

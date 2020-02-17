@@ -156,7 +156,7 @@ def train_generative(args, train, test, z_train, z_test):
 if __name__ == '__main__':
     # Architecture names
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', type=int, default=1)
+    parser.add_argument('-n', '--num-epochs', type=int, default=200)
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--data-path', type=str, default='data/pendulum/')
     parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/pixel_pendulum/di/')

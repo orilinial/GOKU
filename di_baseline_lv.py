@@ -1,7 +1,6 @@
 import numpy as np
 from torchdiffeq import odeint_adjoint as odeint
 import argparse
-from tqdm import trange
 import torch
 import torch.nn as nn
 from utils.utils import set_seed
@@ -157,7 +156,7 @@ def create_z0(args, data, params):
     t = torch.arange(0.0, end=seq_len * delta_t, step=delta_t)
 
     predicted_z = torch.zeros((data_size, seq_len, 2))
-    for sample in trange(data_size):
+    for sample in range(data_size):
         first_known_idx = np.nonzero(data["latent_mask"][sample, :, 0])[0][0]
         z_known = torch.FloatTensor(data["latent_batch"][sample, first_known_idx]).unsqueeze(0)
         params_sample = params[sample].unsqueeze(0)
@@ -212,7 +211,7 @@ def train_generative(args, train, z_train, z_test):
 if __name__ == '__main__':
     # Architecture names
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', type=int, default=1)
+    parser.add_argument('-n', '--num-epochs', type=int, default=200)
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--data-path', type=str, default='data/lv/')
     parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/lv/di/')

@@ -1,11 +1,10 @@
 import argparse
 import numpy as np
 import torch
-from tqdm import tqdm, trange
 from utils import ODE_dataset, utils
 import models
 import os
-from config import load_goku_train_config
+from config import load_latent_ode_train_config
 
 
 def validate_latent_ode(args, model, val_dataloader, device):
@@ -53,10 +52,10 @@ def train(args):
     best_model = models.__dict__["create_latent_ode_" + args.model](ode_method=args.method).to(device)
     best_val_loss = np.inf
 
-    for epoch in trange(args.num_epochs):
+    for epoch in range(args.num_epochs):
         epoch_loss_array = []
 
-        for i_batch, (mini_batch, latent_batch, latent_mask) in enumerate(tqdm(train_dataloader)):
+        for i_batch, (mini_batch, latent_batch, latent_mask) in enumerate(train_dataloader):
             mini_batch = mini_batch.to(device)
             latent_batch = latent_batch.to(device)
             latent_mask = latent_mask.to(device)
@@ -79,9 +78,10 @@ def train(args):
             loss += kl_annealing_factor * analytic_kl_z0
 
             # Grounding loss for L-ODE+
-            ode_dim = latent_batch.shape[2]
-            grounding_loss = ((latent_mask * (pred_z[:, :, :ode_dim] - latent_batch)) ** 2).mean((0, 1)).sum()
-            loss += args.grounding_loss * grounding_loss
+            if args.grounding_loss:
+                ode_dim = latent_batch.shape[2]
+                grounding_loss = ((latent_mask * (pred_z[:, :, :ode_dim] - latent_batch)) ** 2).mean((0, 1)).sum()
+                loss += 100.0 * grounding_loss
 
             # Backward step
             optimizer.zero_grad()
@@ -106,7 +106,7 @@ def train(args):
                 "model": best_model.state_dict(),
                 "data_args": torch.load(args.data_path + 'data_args.pkl')
                 }
-    file_path = 'grounding_latent_ode_model.pkl' if args.grounding_loss > 0 else 'latent_ode_model.pkl'
+    file_path = 'grounding_latent_ode_model.pkl' if args.grounding_loss else 'latent_ode_model.pkl'
     torch.save(log_dict, args.checkpoints_dir + file_path)
 
 
@@ -121,8 +121,8 @@ if __name__ == '__main__':
 
     # Data parameters
     parser.add_argument('-sl', '--seq-len', type=int)
-    parser.add_argument('--delta-t', type=float, default=0.05)
-    parser.add_argument('--data-path', type=str, default='data/lv/')
+    parser.add_argument('--delta-t', type=float)
+    parser.add_argument('--data-path', type=str)
     parser.add_argument('--norm', type=str, choices=['zscore', 'zero_to_one'], default=None)
 
     # Optimizer parameters
@@ -139,12 +139,12 @@ if __name__ == '__main__':
     parser.add_argument('--kl-start-af', type=float)
     parser.add_argument('--kl-end-af', type=float)
 
-    parser.add_argument('--grounding-loss', type=float, default=0.0)
+    parser.add_argument('--grounding-loss', action='store_true')
 
     parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/')
 
     args = parser.parse_args()
-    args = load_goku_train_config(args)
+    args = load_latent_ode_train_config(args)
     args.checkpoints_dir = args.checkpoints_dir + args.model + '/'
 
     if not os.path.exists(args.checkpoints_dir):

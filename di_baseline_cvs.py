@@ -1,7 +1,6 @@
 import numpy as np
 from torchdiffeq import odeint_adjoint as odeint
 import argparse
-from tqdm import trange
 import random
 import torch
 import torch.nn as nn
@@ -208,7 +207,7 @@ def create_z0(args, data, params):
     t = torch.arange(0.0, end=seq_len * delta_t, step=delta_t)
 
     predicted_z = torch.zeros((data_size, seq_len, 4))
-    for sample in trange(data_size):
+    for sample in range(data_size):
         first_known_idx = np.nonzero(data["latent_mask"][sample, :, 0])[0][0]
         params_sample = params[sample].unsqueeze(0)
 
@@ -230,7 +229,7 @@ def create_z0(args, data, params):
 if __name__ == '__main__':
     # Architecture names
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', type=int, default=1)
+    parser.add_argument('-n', '--num-epochs', type=int, default=200)
     parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--data-path', type=str, default='data/cvs/')
     parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/cvs/di/')
