@@ -114,7 +114,6 @@ class Decoder(nn.Module):
 
         # latent_batch to params
         params_batch = self.relu(self.latent_to_hidden_params(latent_params_batch))
-        # params_batch = self.sigmoid(self.hidden_to_params(params_batch)) + 0.5
         params_batch = self.softplus(self.hidden_to_params(params_batch))
 
         ode_init_batch = torch.cat((z0_batch, params_batch), dim=1)

@@ -194,5 +194,9 @@ def create_latent_ode_pixel_pendulum(input_dim=[28, 28], latent_dim=16, rnn_inpu
     return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderPixelPendulum, decoder=DecoderPixelPendulum)
 
 
+def create_latent_ode_pixel_pendulum_friction(input_dim=[28, 28], latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
+    return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderPixelPendulum, decoder=DecoderPixelPendulum)
+
+
 def create_latent_ode_cvs(input_dim=3, latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
     return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderCVS, decoder=DecoderCVS)

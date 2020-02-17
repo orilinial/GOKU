@@ -22,7 +22,7 @@ class AbsODE(nn.Module):
 class ODE(nn.Module):
     def __init__(self):
         super(ODE, self).__init__()
-        self.ode_dim = 4  # FIXME
+        self.ode_dim = 4
         self.known_params = {
             "f_hr_max": 3.0,
             "f_hr_min": 2.0 / 3.0,
@@ -30,6 +30,7 @@ class ODE(nn.Module):
             "r_tpr_min": 0.5335,
             "ca": 4.0,
             "cv": 111.0,
+            "sv_mod": 0.0001,
 
             # dS/dt parameters
             "k_width": 0.1838,
@@ -41,7 +42,7 @@ class ODE(nn.Module):
             "v_ed0": 7.14,
             "T_sys": 4. / 15.,
             "cprsw_max": 103.8,
-            "cprsw_min": 25.9
+            "cprsw_min": 25.9,
         }
 
     def forward(self, t, input_t):
@@ -50,7 +51,6 @@ class ODE(nn.Module):
 
         i_ext = params[:, 0]
         r_tpr_mod = params[:, 1]
-        sv_mod = 0.0001
 
         # Parameters:
         # dV/dt parameters
@@ -63,12 +63,13 @@ class ODE(nn.Module):
         k_width = self.known_params["k_width"]
         p_aset = self.known_params["p_aset"]
         tau = self.known_params["tau"]
+        sv_mod = self.known_params["sv_mod"]
 
         # State variables
         p_a = 100.0 * z_t[:, 0]
         p_v = 10.0 * z_t[:, 1]
         s = z_t[:, 2]
-        sv = 100.0 * z_t[:, 3]  # FIXME
+        sv = 100.0 * z_t[:, 3]
 
         # Building f_hr and r_tpr:
         f_hr = s * (f_hr_max - f_hr_min) + f_hr_min
@@ -83,9 +84,9 @@ class ODE(nn.Module):
         # Building dS/dt:
         ds_dt = (1./tau) * (1. - 1./(1 + torch.exp(-1 * k_width * (p_a - p_aset))) - s)
 
-        dsv_dt = i_ext * sv_mod  # FIXME
+        dsv_dt = i_ext * sv_mod
 
-        dzdt = torch.stack((dpa_dt, dpv_dt, ds_dt, dsv_dt), dim=1)  # FIXME
+        dzdt = torch.stack((dpa_dt, dpv_dt, ds_dt, dsv_dt), dim=1)
         dzdt = torch.cat((dzdt, torch.zeros_like(params)), dim=1)
         return dzdt
 
@@ -142,23 +143,15 @@ class Decoder(nn.Module):
         self.input_dim = input_dim
         self.ode_method = ode_method
         self.ode_solver = ODE()
-        self.ode_dim = 4 # FIXME
-        self.params_dim = 3
+        self.ode_dim = 4
+        self.params_dim = 2
         self.abs_ode_dim = self.ode_dim
-        # self.ode_solver_abs = AbsODE(self.abs_ode_dim)
 
         # Latent vector to ODE input vector
         self.latent_to_ode_net = nn.Sequential(nn.Linear(latent_dim, 200),
                                                nn.ReLU(),
                                                nn.Linear(200, self.ode_dim),
-                                               # nn.Softplus())
                                                nn.Sigmoid())
-
-        # Abstract part
-        # self.latent_to_abs_net = nn.Sequential(nn.Linear(latent_dim, 64),
-        #                                        nn.ReLU(),
-        #                                        nn.Linear(64, self.ode_dim),
-        #                                        nn.Sigmoid())
 
         # Latent vector to ODE params
         self.latent_to_params_net = nn.Sequential(nn.Linear(latent_dim, 200),
@@ -168,7 +161,6 @@ class Decoder(nn.Module):
         # ODE result: z_t to reconstructed input x_t
         self.z_to_x_net = nn.Sequential(nn.Linear(self.ode_dim, 200),
                                         nn.ReLU(),
-                                        # nn.Linear(200, self.input_dim))
                                         nn.Linear(200, 1))
 
         self.relu = nn.ReLU()
@@ -182,46 +174,17 @@ class Decoder(nn.Module):
 
         params_batch = self.latent_to_params_net(latent_params_batch)
         i_ext = self.sigmoid(params_batch[:, 0]) * -2.0
-        # sv = self.sigmoid(params_batch[:, 1]) * 0.1 + 0.85
         r_tpr_mod = self.sigmoid(params_batch[:, 1]) * 0.5
-        sv_mod = params_batch[:, 2]  # FIXME
-        # params_batch = torch.stack((i_ext, sv, r_tpr_mod), dim=1)
-        params_batch = torch.stack((i_ext, r_tpr_mod, sv_mod), dim=1)  # FIXME
+        params_batch = torch.stack((i_ext, r_tpr_mod), dim=1)
 
         ode_init_batch = torch.cat((z0_batch, params_batch), dim=1)
-        # ode_init_batch = z0_batch
-        predicted_z_ode = odeint(self.ode_solver, ode_init_batch, t, method=self.ode_method).permute(1, 0, 2)[:, :, :self.ode_dim]
-
-        # Abstract part
-        # z0_batch_abs = self.latent_to_abs_net(latent_batch)
-        # predicted_z_abs = odeint(self.ode_solver_abs, z0_batch_abs, t, method=self.ode_method).permute(1, 0, 2)
-
-        # Abstract and ODE makes all
-        # predicted_z = predicted_z_ode + predicted_z_abs
-        predicted_z = predicted_z_ode
-        # predicted_z = predicted_z_abs
+        predicted_z = odeint(self.ode_solver, ode_init_batch, t, method=self.ode_method).permute(1, 0, 2)[:, :, :self.ode_dim]
 
         # ODE result to reconstructed  input
         predicted_x_f_hr = self.z_to_x_net(predicted_z)
-        # predicted_x = self.z_to_x_net(predicted_z)
-
-        # predicted_x = torch.cat((predicted_z[:, :, 2:4], predicted_x_f_hr), dim=2) # FIXME
-        # f_hr_max = 3.0
-        # f_hr_min = 2.0 / 3.0
-        # predicted_x_f_hr = predicted_z[:, :, 3].unsqueeze(2) * (f_hr_max - f_hr_min) + f_hr_min
         predicted_x = torch.cat((predicted_z[:, :, 0:2], predicted_x_f_hr), dim=2)
 
         params_batch = {"i_ext": params_batch[:, 0],
                         "r_tpr_mod": params_batch[:, 1]}
-
-                        # "sv_mod": params_batch[:, 2]}  # FIXME
-
-        # params_batch = {"i_ext": params_batch[:, 0],
-        #                 "sv": params_batch[:, 1],
-        #                 "r_tpr_mod": params_batch[:, 2]}
-
-        # params_batch = {"i_ext": params_batch[:, 0]}
-        # params_batch = {"r_tpr_mod": params_batch[:, 0]}
-        # params_batch = {"sv": params_batch[:, 0]}
 
         return predicted_x, predicted_z, params_batch

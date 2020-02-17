@@ -1,13 +1,18 @@
 import torch.nn as nn
 import torch
 from torchdiffeq import odeint_adjoint as odeint
-# from ODE_funcs import Pendulum as ODE
 from utils import utils
 
 
 class ODE(nn.Module):
     def __init__(self):
         super(ODE, self).__init__()
+        self.unknown_net = nn.Sequential(nn.Linear(2, 200),
+                                         nn.ReLU(),
+                                         nn.Linear(200, 200),
+                                         nn.ReLU(),
+                                         nn.Linear(200, 2),
+                                         )
 
     def forward(self, t, input_t):
         # Setting ODE parameters:
@@ -22,23 +27,11 @@ class ODE(nn.Module):
         dxdt[:, 0] = z_t[:, 1]
         dxdt[:, 1] = -G/L * torch.sin(z_t[:, 0])
 
+        unknown_dxdt = self.unknown_net(z_t)
+        dxdt = dxdt + unknown_dxdt
+
         dxdt = torch.cat((dxdt, torch.zeros_like(params)), dim=1)
         return dxdt
-
-
-class UnknownODE(nn.Module):
-    def __init__(self, ode_dim):
-        super(UnknownODE, self).__init__()
-        self.first_layer = nn.Linear(ode_dim, 20)
-        self.second_layer = nn.Linear(20, 20)
-        self.third_layer = nn.Linear(20, ode_dim)
-        self.relu = nn.ReLU()
-
-    def forward(self, t, input):
-        out = self.relu(self.first_layer(input))
-        out = self.relu(self.second_layer(out))
-        out = self.third_layer(out)
-        return out
 
 
 class Encoder(nn.Module):
@@ -52,7 +45,6 @@ class Encoder(nn.Module):
         self.relu = nn.ReLU()
 
         self.rnn_layers = rnn_layers
-
 
         self.rnn = nn.RNN(input_size=rnn_input_dim, hidden_size=rnn_output_dim,
                           nonlinearity='relu', batch_first=True,
@@ -114,16 +106,10 @@ class Decoder(nn.Module):
         self.hidden_to_params = nn.Linear(200, self.params_dim)
 
         # ODE result: z_t to reconstructed input x_t
-        first_layer_dim = self.ode_dim
-        self.first_layer = nn.Linear(first_layer_dim, 200)
+        self.first_layer = nn.Linear(self.ode_dim, 200)
         self.second_layer = nn.Linear(200, 200)
         self.third_layer = nn.Linear(200, 200)
         self.fourth_layer = nn.Linear(200, input_dim[0] * input_dim[1])
-
-        # Latent to unknown ODE
-        self.unknown_ode_solver = UnknownODE(self.unknown_ode_dim)
-        self.latent_to_hidden_unknown = nn.Linear(latent_dim * 2, 200)
-        self.hidden_to_ode_unknown = nn.Linear(200, self.unknown_ode_dim)
 
         # Activations
         self.relu = nn.ReLU()
@@ -131,32 +117,18 @@ class Decoder(nn.Module):
         self.softplus = nn.Softplus()
 
     def forward(self, latent_batch, latent_params_batch, t):
-        # Known ODE
         # Latent to ODE
         z0_batch = self.relu(self.latent_to_hidden_z0(latent_batch))
         z0_batch = self.hidden_to_ode(z0_batch)
 
         # latent_batch to params
         params_batch = self.relu(self.latent_to_hidden_params(latent_params_batch))
-        # params_batch = self.sigmoid(self.hidden_to_params(params_batch)) + 0.5
         params_batch = self.softplus(self.hidden_to_params(params_batch))
 
         ode_init_batch = torch.cat((z0_batch, params_batch), dim=1)
 
         # ODE solution at any time in t
-        predicted_known_z = odeint(self.ode_solver, ode_init_batch, t, method=self.ode_method).permute(1, 0, 2)[:, :, :self.ode_dim]
-
-        # Unknown part:
-        unknown_latent_batch = torch.cat((latent_batch, latent_params_batch), dim=1)
-        unknown_z0_batch = self.relu(self.latent_to_hidden_unknown(unknown_latent_batch))
-        unknown_z0_batch = self.hidden_to_ode_unknown(unknown_z0_batch)
-        predicted_unknown_z = odeint(self.unknown_ode_solver, unknown_z0_batch, t, method='rk4').permute(1, 0, 2)
-
-        # This part compares known and unknown
-        # predicted_known_z = 0
-        # predicted_unknown_z = 0
-
-        predicted_z = predicted_known_z + predicted_unknown_z
+        predicted_z = odeint(self.ode_solver, ode_init_batch, t, method=self.ode_method).permute(1, 0, 2)[:, :, :self.ode_dim]
 
         recon_batch = self.relu(self.first_layer(predicted_z))
         recon_batch = recon_batch + self.relu(self.second_layer(recon_batch))

@@ -101,5 +101,9 @@ def create_lstm_pixel_pendulum(input_dim=[28, 28], hidden_dim=16, num_layers=2):
     return LSTMPixelPendulum(input_dim, hidden_dim, num_layers)
 
 
+def create_lstm_pixel_pendulum_friction(input_dim=[28, 28], hidden_dim=16, num_layers=2):
+    return LSTMPixelPendulum(input_dim, hidden_dim, num_layers)
+
+
 def create_lstm_cvs(input_dim=3, hidden_dim=128, num_layers=4):
     return LSTM_CVS(input_dim, hidden_dim, num_layers)

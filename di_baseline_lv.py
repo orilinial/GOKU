@@ -192,8 +192,7 @@ def train_generative(args, train, z_train, z_test):
     targets = torch.FloatTensor(train["data_batch"])[not_nan_ids]
     targets = targets.view(targets.size(0) * targets.size(1), 4)
 
-    num_epochs = 200
-    for epoch in range(num_epochs):
+    for epoch in range(args.num_epochs):
         predicted_x = model(z_train)
         loss = ((predicted_x - targets) ** 2).mean()
 
@@ -201,8 +200,8 @@ def train_generative(args, train, z_train, z_test):
         loss.backward()
         optimizer.step()
 
-        print("Epoch: %d/%d, loss = %.3f" % (epoch+1, num_epochs, loss.item()))
-        torch.save(model.state_dict(), 'baseline_generative.pkl')
+        print("Epoch: %d/%d, loss = %.3f" % (epoch+1, args.num_epochs, loss.item()))
+        torch.save(model.state_dict(), args.checkpoints_dir + 'di_baseline_generative.pkl')
 
     with torch.no_grad():
         predicted_x = model(z_test)
@@ -213,8 +212,8 @@ def train_generative(args, train, z_train, z_test):
 if __name__ == '__main__':
     # Architecture names
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', type=int, default=200)
-    parser.add_argument('--seed', type=int, default=13)
+    parser.add_argument('-n', '--num-epochs', type=int, default=1)
+    parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--data-path', type=str, default='data/lv/')
     parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/lv/di/')
     args = parser.parse_args()
@@ -231,13 +230,13 @@ if __name__ == '__main__':
     torch.save(params_batch_train, args.checkpoints_dir + 'di_baseline_params_train.pkl')
 
     params_batch_test = train_params(args, test_data)
-    torch.save(params_batch_test, args.checkpoints_dir + 'baseline_params_test.pkl')
+    torch.save(params_batch_test, args.checkpoints_dir + 'di_baseline_params_test.pkl')
 
     predicted_z_train = create_z0(args, train_data, params_batch_train)
-    torch.save(predicted_z_train, args.checkpoints_dir + 'baseline_z_train.pkl')
+    torch.save(predicted_z_train, args.checkpoints_dir + 'di_baseline_z_train.pkl')
 
     predicted_z_test = create_z0(args, test_data, params_batch_test)
-    torch.save(predicted_z_test, args.checkpoints_dir + 'baseline_z_test.pkl')
+    torch.save(predicted_z_test, args.checkpoints_dir + 'di_baseline_z_test.pkl')
 
     predicted_x_test = train_generative(args, train_data, predicted_z_train, predicted_z_test)
-    torch.save(predicted_x_test, args.checkpoints_dir + 'baseline_x_test.pkl')
+    torch.save(predicted_x_test, args.checkpoints_dir + 'di_baseline_x_test.pkl')

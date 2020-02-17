@@ -3,12 +3,12 @@ from scipy import integrate
 import argparse
 from tqdm import trange
 import matplotlib.pyplot as plt
-import torch.nn as nn
 import torch
 from utils.utils import set_seed, StatesToSamples
 import os
 import gym
 from utils import gym_utils
+from config import load_data_config
 
 
 class OdeModel:
@@ -434,19 +434,20 @@ def make_dataset(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('--output-dir', type=str, default='data/lv/')
-    parser.add_argument('--seq-len', type=int, default=400)
-    parser.add_argument('--data-size', type=int, default=10000)
-    parser.add_argument('--delta-t', '-dt', type=float, default=0.05)
-    parser.add_argument('--noise-std', type=float, default=0.01)
-    parser.add_argument('--mask-rate', type=float, default=0.01)
-    parser.add_argument('--model', default='LV', choices=['CVS', 'LV', 'Pendulum'])
+    parser.add_argument('--output-dir', type=str)
+    parser.add_argument('--seq-len', type=int)
+    parser.add_argument('--data-size', type=int)
+    parser.add_argument('--delta-t', '-dt', type=float)
+    parser.add_argument('--noise-std', type=float)
+    parser.add_argument('--mask-rate', type=float)
+    parser.add_argument('--model', choices=['CVS', 'LV', 'Pendulum'], required=True)
     parser.add_argument('--new-dataset', action='store_true')
-    parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--friction', action='store_true')
+    parser.add_argument('--seed', type=int, default=1)
 
     args = parser.parse_args()
-    args.new_dataset = True
+    args = load_data_config(args)
+
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
 

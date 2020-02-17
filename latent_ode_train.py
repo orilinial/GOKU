@@ -5,6 +5,7 @@ from tqdm import tqdm, trange
 from utils import ODE_dataset, utils
 import models
 import os
+from config import load_goku_train_config
 
 
 def validate_latent_ode(args, model, val_dataloader, device):
@@ -113,13 +114,13 @@ if __name__ == '__main__':
     # Architecture names
     parser = argparse.ArgumentParser(description="parse args")
     # Run parameters
-    parser.add_argument('-n', '--num-epochs', type=int, default=400)
-    parser.add_argument('-mbs', '--mini-batch-size', type=int, default=128)
-    parser.add_argument('--seed', type=int, default=13)
+    parser.add_argument('-n', '--num-epochs', type=int)
+    parser.add_argument('-mbs', '--mini-batch-size', type=int)
+    parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--cpu', action='store_true')
 
     # Data parameters
-    parser.add_argument('-sl', '--seq-len', type=int, default=50)
+    parser.add_argument('-sl', '--seq-len', type=int)
     parser.add_argument('--delta-t', type=float, default=0.05)
     parser.add_argument('--data-path', type=str, default='data/lv/')
     parser.add_argument('--norm', type=str, choices=['zscore', 'zero_to_one'], default=None)
@@ -130,18 +131,21 @@ if __name__ == '__main__':
 
     # Model parameters
     parser.add_argument('-m', '--method', type=str, default='rk4')
-    parser.add_argument('--model', type=str, default='lv')
+    parser.add_argument('--model', type=str, choices=['lv', 'pixel_pendulum', 'cvs', 'pixel_pendulum_friction'],
+                        required=True)
 
     # KL Annealing factor parameters
-    parser.add_argument('--kl-annealing-epochs', type=int, default=200)
-    parser.add_argument('--kl-start-af', type=float, default=0.00001)
-    parser.add_argument('--kl-end-af', type=float, default=0.00001)
+    parser.add_argument('--kl-annealing-epochs', type=int)
+    parser.add_argument('--kl-start-af', type=float)
+    parser.add_argument('--kl-end-af', type=float)
 
-    parser.add_argument('--grounding-loss', type=float, default=100.0)
+    parser.add_argument('--grounding-loss', type=float, default=0.0)
 
-    parser.add_argument('--checkpoints-dir', type=str, default='checkpoints_latent_ode/')
+    parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/')
 
     args = parser.parse_args()
+    args = load_goku_train_config(args)
+    args.checkpoints_dir = args.checkpoints_dir + args.model + '/'
 
     if not os.path.exists(args.checkpoints_dir):
         os.makedirs(args.checkpoints_dir)

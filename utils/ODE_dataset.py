@@ -31,16 +31,6 @@ class ODEDataSet(Dataset):
             self.latent = torch.FloatTensor(data_dict["test_latent"])
             self.mask = torch.FloatTensor(data_dict["test_latent_mask"])
 
-        # self.possible_start_dict = {}
-        # for sample in range(self.mask.size(0)):
-        #     possible_start = torch.zeros(self.mask.size(1))
-        #     for dim in range(self.mask.size(2)):
-        #         non_zero_elements = torch.nonzero(self.mask[sample, :, dim]).squeeze()
-        #         for elem in non_zero_elements:
-        #             possible_start[max(0, elem-seq_len+1):elem+1] = 1
-        #             possible_start = possible_start[:(self.mask.size(1)-seq_len)]
-        #     self.possible_start_dict[sample] = torch.nonzero(possible_start).squeeze()
-
     def __len__(self):
         return self.data.size(0)
 

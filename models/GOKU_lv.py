@@ -88,16 +88,8 @@ class Decoder(nn.Module):
         # Latent vector to ODE params
         self.latent_to_params_net = nn.Sequential(nn.Linear(latent_dim, 200),
                                                   nn.ReLU(),
-                                                  nn.Linear(200, 200),
-                                                  nn.ReLU(),
-                                                  nn.Linear(200, 200),
-                                                  nn.ReLU(),
                                                   nn.Linear(200, self.params_dim),
                                                   nn.Softplus())
-
-        # self.latent_to_params_net = nn.Sequential(nn.Linear(latent_dim, 200),
-        #                                           nn.ReLU(),
-        #                                           nn.Linear(200, self.params_dim))
 
         # ODE result: z_t to reconstructed input x_t
         self.generative_net = nn.Sequential(nn.Linear(self.ode_dim, 200),

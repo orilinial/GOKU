@@ -5,6 +5,7 @@ from tqdm import tqdm, trange
 from utils import ODE_dataset, utils
 import os
 import models
+from config import load_lstm_train_config
 
 
 def train(args):
@@ -73,26 +74,28 @@ def train(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
     # Run parameters
-    parser.add_argument('-n', '--num-epochs', type=int, default=20)
-    parser.add_argument('-mbs', '--mini-batch-size', type=int, default=32)
-    parser.add_argument('--seed', type=int, default=13)
+    parser.add_argument('-n', '--num-epochs', type=int)
+    parser.add_argument('-mbs', '--mini-batch-size', type=int)
+    parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--norm', type=str, choices=['zscore', 'zero_to_one'], default=None)
 
     # Data parameters
-    parser.add_argument('-sl', '--seq-len', type=int, default=100)
-    parser.add_argument('--data-path', type=str, default='data/lv/')
-    parser.add_argument('--model', type=str, default='lv')
+    parser.add_argument('-sl', '--seq-len', type=int)
+    parser.add_argument('--data-path', type=str)
+    parser.add_argument('--model', type=str, choices=['lv', 'pixel_pendulum', 'cvs', 'pixel_pendulum_friction'],
+                        required=True)
 
     # Optimizer parameters
-    parser.add_argument('-lr', '--learning-rate', type=float, default=0.001)
-    parser.add_argument('-wd', '--weight-decay', type=float, default=0.0)
-
-    parser.add_argument('--cpu', action='store_true')
+    parser.add_argument('-lr', '--learning-rate', type=float, default=0.0001)
+    parser.add_argument('-wd', '--weight-decay', type=float, default=0.00001)
 
     # Model parameters
-    parser.add_argument('--checkpoints-dir', type=str, default='checkpoints_lstm/')
+    parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/')
+    parser.add_argument('--cpu', action='store_true')
 
     args = parser.parse_args()
+    args = load_lstm_train_config(args)
+    args.checkpoints_dir = args.checkpoints_dir + args.model + '/'
 
     if not os.path.exists(args.checkpoints_dir):
         os.makedirs(args.checkpoints_dir)

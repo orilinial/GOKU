@@ -230,10 +230,10 @@ def create_z0(args, data, params):
 if __name__ == '__main__':
     # Architecture names
     parser = argparse.ArgumentParser(description="parse args")
-    parser.add_argument('-n', '--num-epochs', type=int, default=200)
-    parser.add_argument('--seed', type=int, default=13)
+    parser.add_argument('-n', '--num-epochs', type=int, default=1)
+    parser.add_argument('--seed', type=int, default=1)
     parser.add_argument('--data-path', type=str, default='data/cvs/')
-    parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/lv/di/')
+    parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/cvs/di/')
     args = parser.parse_args()
 
     if not os.path.exists(args.checkpoints_dir):
