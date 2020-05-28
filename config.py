@@ -5,7 +5,6 @@ def load_data_config(args):
         args.data_size = 10000
         args.delta_t = 0.05
         args.noise_std = 0.01
-        args.new_dataset = True
 
     if args.model == 'CVS':
         args.output_dir = 'data/cvs/'
@@ -13,7 +12,6 @@ def load_data_config(args):
         args.data_size = 1000
         args.delta_t = 1.0
         args.noise_std = 0.01
-        args.new_dataset = True
 
     if args.model == 'Pendulum':
         args.output_dir = 'data/pendulum/' if not args.friction else 'data/pendulum_friction/'
@@ -21,7 +19,6 @@ def load_data_config(args):
         args.data_size = 500
         args.delta_t = 0.05
         args.noise_std = 0.0
-        args.new_dataset = True
         args.data_set = 1
 
     return args

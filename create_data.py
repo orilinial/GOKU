@@ -307,7 +307,7 @@ def create_mask(args, data_shape):
 
 
 def make_dataset(args):
-    if args.new_dataset:
+    if not args.change_only_mask_rate:
         if args.model == 'Pendulum':
             raw_data, latent_data, params_data = sample_gym(args)
 
@@ -372,7 +372,7 @@ if __name__ == '__main__':
     parser.add_argument('--noise-std', type=float)
     parser.add_argument('--mask-rate', type=float, default=0.01)
     parser.add_argument('--model', choices=['CVS', 'LV', 'Pendulum'], required=True)
-    parser.add_argument('--new-dataset', action='store_true')
+    parser.add_argument('--change-only-mask-rate', action='store_true')
     parser.add_argument('--friction', action='store_true')
     parser.add_argument('--seed', type=int, default=1)
 
