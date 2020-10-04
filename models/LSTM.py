@@ -19,15 +19,11 @@ class LSTM_LV(nn.Module):
         return out, h
 
 
-class LSTMPixelPendulum(nn.Module):
+class LSTMPendulum(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_layers):
-        super(LSTMPixelPendulum, self).__init__()
+        super(LSTMPendulum, self).__init__()
         self.input_dim = input_dim
         lstm_input_dim = 32
-
-        # self.input_to_lstm = nn.Sequential(nn.Linear(input_dim[0] * input_dim[1], 200),
-        #                                    nn.ReLU(),
-        #                                    nn.Linear(200, lstm_input_dim))
 
         self.first_layer = nn.Linear(input_dim[0] * input_dim[1], 200)
         self.second_layer = nn.Linear(200, 200)
@@ -47,14 +43,10 @@ class LSTMPixelPendulum(nn.Module):
         self.relu = nn.ReLU()
         self.sigmoid = nn.Sigmoid()
 
-        # self.lstm_to_output = nn.Sequential(nn.Linear(hidden_dim, 200),
-        #                                     nn.ReLU(),
-        #                                     nn.Linear(200, input_dim[0] * input_dim[1]),
-        #                                     nn.Sigmoid())
-
     def forward(self, mini_batch, h=None):
         mini_batch = mini_batch.view(mini_batch.size(0), mini_batch.size(1), mini_batch.size(2) * mini_batch.size(3))
         mini_batch = self.relu(self.first_layer(mini_batch))
+
         mini_batch = mini_batch + self.relu(self.second_layer(mini_batch))
         mini_batch = mini_batch + self.relu(self.third_layer(mini_batch))
         mini_batch = self.relu(self.fourth_layer(mini_batch))
@@ -93,17 +85,17 @@ class LSTM_CVS(nn.Module):
         return out, h
 
 
-def create_lstm_lv(input_dim=4, hidden_dim=128, num_layers=4):
-    return LSTM_LV(input_dim, hidden_dim, num_layers)
+def create_lstm_pendulum(input_dim=[28, 28], hidden_dim=16, num_layers=2):
+    return LSTMPendulum(input_dim, hidden_dim, num_layers)
 
 
-def create_lstm_pixel_pendulum(input_dim=[28, 28], hidden_dim=16, num_layers=2):
-    return LSTMPixelPendulum(input_dim, hidden_dim, num_layers)
-
-
-def create_lstm_pixel_pendulum_friction(input_dim=[28, 28], hidden_dim=16, num_layers=2):
-    return LSTMPixelPendulum(input_dim, hidden_dim, num_layers)
+def create_lstm_pendulum_friction(input_dim=[28, 28], hidden_dim=16, num_layers=2):
+    return LSTMPendulum(input_dim, hidden_dim, num_layers)
 
 
 def create_lstm_cvs(input_dim=3, hidden_dim=128, num_layers=4):
     return LSTM_CVS(input_dim, hidden_dim, num_layers)
+
+
+def create_lstm_double_pendulum(input_dim=[32, 32], hidden_dim=16, num_layers=2):
+    return LSTMPendulum(input_dim, hidden_dim, num_layers)

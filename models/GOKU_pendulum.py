@@ -1,7 +1,6 @@
 import torch.nn as nn
 import torch
 from torchdiffeq import odeint_adjoint as odeint
-# from ODE_funcs import Pendulum as ODE
 from utils import utils
 
 

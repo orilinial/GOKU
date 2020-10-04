@@ -2,21 +2,6 @@ import torch
 import torch.nn as nn
 from utils import utils
 from torchdiffeq import odeint_adjoint as odeint
-import numpy as np
-
-
-class AbsODE(nn.Module):
-    def __init__(self, ode_dim):
-        super(AbsODE, self).__init__()
-        self.ode_net = nn.Sequential(nn.Linear(ode_dim, 200),
-                                     nn.ReLU(),
-                                     nn.Linear(200, 200),
-                                     nn.ReLU(),
-                                     nn.Linear(200, ode_dim))
-
-    def forward(self, t, input):
-        out = self.ode_net(input)
-        return out
 
 
 class ODE(nn.Module):
@@ -51,6 +36,7 @@ class ODE(nn.Module):
 
         i_ext = params[:, 0]
         r_tpr_mod = params[:, 1]
+        sv_mod = 0.0001
 
         # Parameters:
         # dV/dt parameters
@@ -144,8 +130,7 @@ class Decoder(nn.Module):
         self.ode_method = ode_method
         self.ode_solver = ODE()
         self.ode_dim = 4
-        self.params_dim = 2
-        self.abs_ode_dim = self.ode_dim
+        self.params_dim = 3
 
         # Latent vector to ODE input vector
         self.latent_to_ode_net = nn.Sequential(nn.Linear(latent_dim, 200),
@@ -175,7 +160,8 @@ class Decoder(nn.Module):
         params_batch = self.latent_to_params_net(latent_params_batch)
         i_ext = self.sigmoid(params_batch[:, 0]) * -2.0
         r_tpr_mod = self.sigmoid(params_batch[:, 1]) * 0.5
-        params_batch = torch.stack((i_ext, r_tpr_mod), dim=1)
+        sv_mod = params_batch[:, 2]  # This is redundant and assumed to be 0.0001
+        params_batch = torch.stack((i_ext, r_tpr_mod, sv_mod), dim=1)
 
         ode_init_batch = torch.cat((z0_batch, params_batch), dim=1)
         predicted_z = odeint(self.ode_solver, ode_init_batch, t, method=self.ode_method).permute(1, 0, 2)[:, :, :self.ode_dim]

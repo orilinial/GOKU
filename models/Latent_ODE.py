@@ -61,9 +61,9 @@ class DecoderLV(nn.Module):
         return predicted_batch, predicted_z
 
 
-class EncoderPixelPendulum(nn.Module):
+class EncoderPendulum(nn.Module):
     def __init__(self, input_dim, latent_dim, rnn_input_dim, rnn_output_dim, rnn_dropout, rnn_layers):
-        super(EncoderPixelPendulum, self).__init__()
+        super(EncoderPendulum, self).__init__()
         self.first_layer = nn.Linear(input_dim[0] * input_dim[1], 200)
         self.second_layer = nn.Linear(200, 200)
         self.third_layer = nn.Linear(200, 200)
@@ -94,9 +94,9 @@ class EncoderPixelPendulum(nn.Module):
         return z_0_loc, z_0_log_var
 
 
-class DecoderPixelPendulum(nn.Module):
+class DecoderPendulum(nn.Module):
     def __init__(self, input_dim, latent_dim, ode_method):
-        super(DecoderPixelPendulum, self).__init__()
+        super(DecoderPendulum, self).__init__()
         self.input_dim = input_dim
         self.ode_method = ode_method
         self.ode_solver = ODE(latent_dim)
@@ -190,13 +190,17 @@ def create_latent_ode_lv(input_dim=4, latent_dim=4, rnn_input_dim=32, rnn_output
     return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderLV, decoder=DecoderLV)
 
 
-def create_latent_ode_pixel_pendulum(input_dim=[28, 28], latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
-    return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderPixelPendulum, decoder=DecoderPixelPendulum)
+def create_latent_ode_pendulum(input_dim=[28, 28], latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
+    return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderPendulum, decoder=DecoderPendulum)
 
 
-def create_latent_ode_pixel_pendulum_friction(input_dim=[28, 28], latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
-    return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderPixelPendulum, decoder=DecoderPixelPendulum)
+def create_latent_ode_pendulum_friction(input_dim=[28, 28], latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
+    return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderPendulum, decoder=DecoderPendulum)
 
 
 def create_latent_ode_cvs(input_dim=3, latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
     return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderCVS, decoder=DecoderCVS)
+
+
+def create_latent_ode_double_pendulum(input_dim=[32, 32], latent_dim=16, rnn_input_dim=32, rnn_output_dim=32, ode_method='rk4', rnn_dropout=0.0, rnn_layers=2):
+    return LatentODE(input_dim, latent_dim, rnn_input_dim, rnn_output_dim, ode_method, rnn_dropout, rnn_layers, encoder=EncoderPendulum, decoder=DecoderPendulum)

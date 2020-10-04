@@ -36,7 +36,7 @@ def train(args):
     for epoch in range(args.num_epochs):
         epoch_loss_array = []
 
-        for i_batch, (mini_batch, latent, mask) in enumerate(train_dataloader):
+        for i_batch, mini_batch in enumerate(train_dataloader):
             target = mini_batch[:, -1].to(device)
             mini_batch = mini_batch[:, :-1].to(device)
 
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     # Data parameters
     parser.add_argument('-sl', '--seq-len', type=int)
     parser.add_argument('--data-path', type=str)
-    parser.add_argument('--model', type=str, choices=['lv', 'pixel_pendulum', 'cvs', 'pixel_pendulum_friction'],
+    parser.add_argument('--model', type=str, choices=['pendulum', 'double_pendulum', 'cvs', 'pendulum_friction'],
                         required=True)
 
     # Optimizer parameters

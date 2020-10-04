@@ -10,7 +10,7 @@ from config import load_goku_train_config
 def validate_goku(args, model, val_dataloader, device):
     model.eval()
     with torch.no_grad():
-        for (val_batch, _, _) in val_dataloader:
+        for val_batch in val_dataloader:
             val_batch = val_batch.to(device)
             t_arr = torch.arange(0.0, end=args.seq_len * args.delta_t, step=args.delta_t, device=device)
             predicted_batch, _, _, _, _, _, _, _, _ = model(val_batch, t=t_arr, variational=False)
@@ -56,10 +56,8 @@ def train(args):
     for epoch in range(args.num_epochs):
         epoch_loss_array = []
 
-        for i_batch, (mini_batch, latent_batch, latent_mask) in enumerate(train_dataloader):
+        for i_batch, mini_batch in enumerate(train_dataloader):
             mini_batch = mini_batch.to(device)
-            latent_batch = latent_batch.to(device)
-            latent_mask = latent_mask.to(device)
 
             # Forward step
             t = torch.arange(0.0, end=args.seq_len * args.delta_t, step=args.delta_t, device=device)
@@ -81,10 +79,6 @@ def train(args):
                                                  torch.zeros_like(params_loc),
                                                  torch.zeros_like(params_log_var)).sum(1).mean(0)
             loss += kl_annealing_factor * (analytic_kl_z0 + analytic_kl_params)
-
-            # Grounding loss
-            grounding_loss = ((latent_mask * (pred_z - latent_batch)) ** 2).mean((0, 1)).sum()
-            loss += args.grounding_loss * grounding_loss
 
             # Backward step
             optimizer.zero_grad()
@@ -133,16 +127,13 @@ if __name__ == '__main__':
 
     # Model parameters
     parser.add_argument('-m', '--method', type=str, default='rk4')
-    parser.add_argument('--model', type=str, choices=['lv', 'pixel_pendulum', 'cvs', 'pixel_pendulum_friction'],
+    parser.add_argument('--model', type=str, choices=['pendulum', 'double_pendulum', 'cvs', 'pendulum_friction'],
                         required=True)
 
     # KL Annealing factor parameters
     parser.add_argument('--kl-annealing-epochs', type=int)
     parser.add_argument('--kl-start-af', type=float)
     parser.add_argument('--kl-end-af', type=float)
-
-    # Grounding-loss Annealing factor parameters
-    parser.add_argument('--grounding-loss', type=float, default=100.0)
 
     parser.add_argument('--checkpoints-dir', type=str, default='checkpoints/')
     parser.add_argument('--cpu', action='store_true')

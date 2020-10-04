@@ -109,12 +109,13 @@ def fetch_data(train):
     # Fetch data:
     train_path = 'train' if train else 'test'
     raw_data = torch.load(args.data_path + 'processed_data.pkl')
+    grounding_data = torch.load(args.data_path + 'grounding_data.pkl')
     processed_data = {}
     seq_len = 100
     new_seq_len = seq_len
 
     for i in range(raw_data[train_path].shape[0]):
-        starting_options = np.nonzero(raw_data[train_path + "_latent_mask"][i, :raw_data[train_path + "_latent_mask"].shape[1] - seq_len].sum(1) == 4)
+        starting_options = np.nonzero(grounding_data[train_path + "_latent_mask"][i, :grounding_data[train_path + "_latent_mask"].shape[1] - seq_len].sum(1) == 4)
         starting_options = np.squeeze(starting_options)
         if starting_options.size == 0 or starting_options.size == 0:
             raise Exception('No observed points at all at %d!' % i)
@@ -126,15 +127,15 @@ def fetch_data(train):
 
     starting_options_dict = {}
     for i in range(raw_data[train_path].shape[0]):
-        starting_options = np.nonzero(raw_data[train_path + "_latent_mask"][i,
-                                      :raw_data[train_path + "_latent_mask"].shape[1] - seq_len].sum(1) == 4)
+        starting_options = np.nonzero(grounding_data[train_path + "_latent_mask"][i,
+                                      :grounding_data[train_path + "_latent_mask"].shape[1] - seq_len].sum(1) == 4)
         starting_options = np.squeeze(starting_options)
         if starting_options.size == 0 or starting_options.size == 1:
             raise Exception('Sequence length absorbed all points! %d' % i)
 
         approved_options = []
         for option in starting_options:
-            if raw_data[train_path + "_latent_mask"][i, option:option + seq_len].sum() > 4:
+            if grounding_data[train_path + "_latent_mask"][i, option:option + seq_len].sum() > 4:
                 approved_options.append(option)
         approved_options = np.array(approved_options)
         if approved_options.size == 0:
@@ -142,8 +143,8 @@ def fetch_data(train):
         else:
             starting_options_dict[i] = approved_options
 
-    processed_data["latent_mask"] = raw_data[train_path + "_latent_mask"]
-    processed_data["latent_batch"] = raw_data[train_path + "_latent"]
+    processed_data["latent_mask"] = grounding_data[train_path + "_latent_mask"]
+    processed_data["latent_batch"] = grounding_data[train_path + "_latent"]
     processed_data["data_batch"] = raw_data[train_path]
 
     # gt data:

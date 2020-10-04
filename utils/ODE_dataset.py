@@ -6,7 +6,7 @@ import random
 
 class ODEDataSet(Dataset):
     def __init__(self, file_path, ds_type, seq_len, random_start, transforms=None):
-        self.transforms = transforms
+        self.transforms = transforms if transforms is not None else {}
         self.random_start = random_start
         # self.train = train
         self.ds_type = ds_type
@@ -17,19 +17,13 @@ class ODEDataSet(Dataset):
         if ds_type == 'train':
             buffer = int(round(data_dict["train"].shape[0] * (1 - 0.1)))
             self.data = torch.FloatTensor(data_dict["train"])[:buffer]
-            self.latent = torch.FloatTensor(data_dict["train_latent"])[:buffer]
-            self.mask = torch.FloatTensor(data_dict["train_latent_mask"])[:buffer]
 
         elif ds_type == 'val':
             buffer = int(round(data_dict["train"].shape[0] * (1 - 0.1)))
             self.data = torch.FloatTensor(data_dict["train"])[buffer:]
-            self.latent = torch.FloatTensor(data_dict["train_latent"])[buffer:]
-            self.mask = torch.FloatTensor(data_dict["train_latent_mask"])[buffer:]
 
         elif ds_type == 'test':
             self.data = torch.FloatTensor(data_dict["test"])
-            self.latent = torch.FloatTensor(data_dict["test_latent"])
-            self.mask = torch.FloatTensor(data_dict["test_latent_mask"])
 
     def __len__(self):
         return self.data.size(0)
@@ -41,13 +35,11 @@ class ODEDataSet(Dataset):
             start_time = 0
 
         sample = self.data[idx, start_time:start_time + self.seq_len]
-        latent = self.latent[idx, start_time:start_time + self.seq_len]
-        mask = self.mask[idx, start_time:start_time + self.seq_len]
 
         for transform in self.transforms:
             sample = self.transforms[transform](sample)
 
-        return sample, latent, mask
+        return sample
 
 
 class NormalizeZScore(object):

@@ -80,10 +80,11 @@ def fetch_data(train):
     # Fetch data:
     train_path = 'train' if train else 'test'
     raw_data = torch.load(args.data_path + 'processed_data.pkl')
+    grounding_data = torch.load(args.data_path + 'grounding_data.pkl')
     processed_data = {}
 
-    processed_data["latent_mask"] = torch.FloatTensor(raw_data[train_path + "_latent_mask"])
-    processed_data["latent_batch"] = torch.FloatTensor(raw_data[train_path + "_latent"])
+    processed_data["latent_mask"] = torch.FloatTensor(grounding_data[train_path + "_latent_mask"])
+    processed_data["latent_batch"] = torch.FloatTensor(grounding_data[train_path + "_latent"])
     processed_data["data_batch"] = torch.FloatTensor(raw_data[train_path])
 
     # gt data:
