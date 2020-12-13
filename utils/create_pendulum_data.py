@@ -15,7 +15,7 @@ def get_theta(obs):
 
 def preproc(X, side):
     """Crops, downsamples, desaturates, etc. the rgb pendulum observation."""
-    X = X[..., 0][440:-220, 330:-330] - X[..., 1][440:-220, 330:-330]
+    X = X[..., 0][220:-110, 165:-165] - X[..., 1][220:-110, 165:-165]
     return skimage.transform.resize(X, [int(side), side]) / 255.
 
 
