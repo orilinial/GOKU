@@ -18,7 +18,9 @@ The same thing happens when we see a ball rolling down the hill. We have some kn
 <br>
 The system in the video above, is a standard friction-less pendulum. This system has been studied for hundreds of years, and a very simple ODE formulation has been created to model this phenomenon:
 
-$$ \ddot{theta} = -\frac{g}{L} sin(\theta) $$
+<p style="font-size:30px">
+$$ \ddot{\theta} = -\frac{g}{L} sin(\theta) $$
+</p>
 <!-- <img src="pendulum_ode.png" width=200 class="center"> -->
 
 Where _<img src="https://render.githubusercontent.com/render/math?math=\theta">_ is the pendulum's angle, _L_ is the pendulum's length, and _g_ is the gravity constant. An important notion is that we are observing a video of a pendulum, but we are given an ODE system for the angle. In fact, we do not know the complex and highly non-linear transformation between the pendulum's angle and the observed frame.
