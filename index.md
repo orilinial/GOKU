@@ -18,7 +18,8 @@ The same thing happens when we see a ball rolling down the hill. We have some kn
 <br>
 The system in the video above, is a standard friction-less pendulum. This system has been studied for hundreds of years, and a very simple ODE formulation has been created to model this phenomenon:
 
-<img src="pendulum_ode.png" width=200 class="center">
+$$ \ddot{theta} = -\frac{g}{L} sin(\theta) $$
+<!-- <img src="pendulum_ode.png" width=200 class="center"> -->
 
 Where _<img src="https://render.githubusercontent.com/render/math?math=\theta">_ is the pendulum's angle, _L_ is the pendulum's length, and _g_ is the gravity constant. An important notion is that we are observing a video of a pendulum, but we are given an ODE system for the angle. In fact, we do not know the complex and highly non-linear transformation between the pendulum's angle and the observed frame.
 <br>
@@ -61,9 +62,9 @@ We don't know the transformation between the observations to the ODE variables, 
 To this end, we created the generative architecture capable of utilizing the ODE form. 
 This architecture is comprised of two parts: (1) an inference model (encoder), and (2) a generative model (decoder).
 The inference model consumes the observed signal, and aims to infer the ODE's static parameters, and a ODE variable at t=0 (namely, ODE's initial value):
-<img src="inference_model.png" class="center" width=800>
+<img src="inference_model.png" align="center" width=300>
 
-<img src="model.png" class="center" width=800>
+<img src="model.png" align="center" width=800>
 This 
 
 
