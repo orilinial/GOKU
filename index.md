@@ -59,11 +59,17 @@ In our scenario, we are given two things:
 We don't know the transformation between the observations to the ODE variables, and do not know the ODE static parameters.
 <br>
 <br>
-
 To this end, we created the generative architecture capable of utilizing the ODE form. 
 This architecture is comprised of two parts: (1) an inference model (encoder), and (2) a generative model (decoder).
-The inference model consumes the observed signal, and aims to infer the ODE's static parameters, and a ODE variable at t=0 (namely, ODE's initial value):
-<img src="inference_model.png" align="middle" width=300>
+The inference model consumes the observed signal, and aims to infer the ODE's static parameters **$$\theta_f$$**, and a ODE variable at t=0 (namely, ODE's initial value) **$$z_0$$**:
+<p align="center">
+<img src="inference_model.png" width=300>
+</p>
+
+We next use the infered initial ODE value and parameters, combined with the ODE functional form to create a trajectory of the latent signal **$$Z$$**. The latent signal is then serve as an input to a generative net producing a reconstructed signal **$$\hat{X}$$**.
+<p align="center">
+<img src="generative_model.png" width=300>
+</p>
 
 <img src="model.png" align="middle" width=800>
 This 
