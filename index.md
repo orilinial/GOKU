@@ -11,7 +11,7 @@ Imagine you are presented a sequence of frames:
 
 Your task is to predict this video's future frames. Normally extrpolating signals is a very hard task in machine learning, studied in many other papers in recent years.
 <br>
-Howdver, when humans observe this video, we could predict it's behaviour rather easily. 
+However, when humans observe this video, we could predict it's behaviour rather easily. 
 Why is that? what do we utilize when we see this type of behaviour?
 The same thing happens when we see a ball rolling down the hill. We have some knowlege about the physical mechanism we observe. This knowldge could come in many ways, but in this paper we choose to focus on knowlenge in the form of an ODE system.
 <br>
@@ -21,9 +21,8 @@ The system in the video above, is a standard friction-less pendulum. This system
 <p style="font-size:30px">
 $$ \ddot{\theta} = -\frac{g}{L} sin(\theta) $$
 </p>
-<!-- <img src="pendulum_ode.png" width=200 class="center"> -->
 
-Where _<img src="https://render.githubusercontent.com/render/math?math=\theta">_ is the pendulum's angle, _L_ is the pendulum's length, and _g_ is the gravity constant. An important notion is that we are observing a video of a pendulum, but we are given an ODE system for the angle. In fact, we do not know the complex and highly non-linear transformation between the pendulum's angle and the observed frame.
+Where $$\theta$$ is the pendulum's angle, $$L$$ is the pendulum's length, and $$g$$ is the gravity constant. An important notion is that we are observing a video of a pendulum, but we are given an ODE system for the angle. In fact, we do not know the complex and highly non-linear transformation between the pendulum's angle and the observed frame.
 <br>
 <br>
 Observing the ODE, introduces us with a new unknown variable - the pendulum's angle. The angle is a parameter of the ODE system, it could be different if we are given a new video of another pendulum, but we know for certain that this parameter remains constant over time. <br>
@@ -64,40 +63,8 @@ We don't know the transformation between the observations to the ODE variables, 
 To this end, we created the generative architecture capable of utilizing the ODE form. 
 This architecture is comprised of two parts: (1) an inference model (encoder), and (2) a generative model (decoder).
 The inference model consumes the observed signal, and aims to infer the ODE's static parameters, and a ODE variable at t=0 (namely, ODE's initial value):
-<img src="inference_model.png" align="center" width=300>
+<img src="inference_model.png" align="middle" width=300>
 
-<img src="model.png" align="center" width=800>
+<img src="model.png" align="middle" width=800>
 This 
 
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/orilinial/GOKU/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
