@@ -1,6 +1,6 @@
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-This blog was written by Ori Linial, to introduce, explain and demonstrate the GOKU-net paper published on ACM Conference on Health, Inference, and Learning (ACM-CHIL). The paper was written by Ori Linial, Neta Ravid, Danny Eitan and Uri Shalit, [Link to paper](https://arxiv.org/abs/2003.10775). 
+This blog accompanies the GOKU-net paper published on ACM Conference on Health, Inference, and Learning (ACM-CHIL). The paper was written by Ori Linial, Neta Ravid, Danny Eitan and Uri Shalit, [Link to paper](https://arxiv.org/abs/2003.10775). 
 <br>
 <br>
 
