@@ -1,6 +1,6 @@
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-This blog was written by Ori Linial, as a supplement for the paper published on ACM Conference on Health, Inference, and Learning (ACM-CHIL). [Link to paper](https://arxiv.org/abs/2003.10775). 
+This blog was written by Ori Linial, to introduce, explain and demonstrate the GOKU-net paper published on ACM Conference on Health, Inference, and Learning (ACM-CHIL). The paper was written by Ori Linial, Neta Ravid, Danny Eitan and Uri Shalit, [Link to paper](https://arxiv.org/abs/2003.10775). 
 <br>
 <br>
 
@@ -54,23 +54,24 @@ Connecting the dots: **would the immense work done on modelling the cardiovascul
 ## GOKU-net
 We present a generative approach based on a varioational-autoencoder, called GOKU-Net. <br>
 In our scenario, we are given two things:
-1. Observed signals (e.g., videos of pendulums).
-2. ODE functional form.
-We don't know the transformation between the observations to the ODE variables, and do not know the ODE static parameters.
+1. Observed signals (e.g., videos of pendulums) **$$X$$**.
+2. ODE functional form **$$f$$**.
+We don't know the transformation between the observations **$$X$$** to the ODE variables **$$Z$$**, and do not know the ODE static parameters **$$\theta_f$$**.
 <br>
 <br>
 To this end, we created the generative architecture capable of utilizing the ODE form. 
 This architecture is comprised of two parts: (1) an inference model (encoder), and (2) a generative model (decoder).
-The inference model consumes the observed signal, and aims to infer the ODE's static parameters **$$\theta_f$$**, and a ODE variable at t=0 (namely, ODE's initial value) **$$z_0$$**:
+The inference model consumes the observed signal, and aims to infer the ODE's static parameters **$$\theta_f$$**, and a ODE variable at $$t=0$$ (namely, ODE's initial value) **$$z_0$$**:
 <p align="center">
 <img src="inference_model.png" width=300>
 </p>
-
-We next use the infered initial ODE value and parameters, combined with the ODE functional form to create a trajectory of the latent signal **$$Z$$**. The latent signal is then serve as an input to a generative net producing a reconstructed signal **$$\hat{X}$$**.
+<br>
+We next use the infered initial ODE value and parameters, combined with the ODE functional form to create a trajectory of the latent signal **$$Z$$**. The latent signal then serves as an input to a generative net producing a reconstructed signal **$$\hat{X}$$**.
 <p align="center">
 <img src="generative_model.png" width=300>
 </p>
-
+<br>
+The entire model, with a bit more details is therefore:
 <img src="model.png" align="middle" width=800>
-This 
+The left part is the 
 
