@@ -56,6 +56,7 @@ We present a generative approach based on a varioational-autoencoder, called GOK
 In our scenario, we are given two things:
 1. Observed signals (e.g., videos of pendulums) **$$X$$**.
 2. ODE functional form **$$f$$**.
+
 We don't know the transformation between the observations **$$X$$** to the ODE variables **$$Z$$**, and do not know the ODE static parameters **$$\theta_f$$**.
 <br>
 <br>
