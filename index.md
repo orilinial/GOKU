@@ -82,7 +82,7 @@ There are maby answers to _why_ variational autoencoder and not a simple autoenc
 Variational-autoencoders are capable of learning the probability **$$p(X)$$** on the given signal space, by maximizing the $$ELBO$$ loss. It is also capable of learning the likelihood probability **$$p(X|Z)$$**, and learn an approximation of the posterior probability **$$q(Z|X)$$** (for more information I encourage the reader the read the VAE papers above, or [this](https://arxiv.org/abs/1606.05908) great tutorial). <br>
 Using VAEs therefore gives us two important abilities:
 1. We could sample $$p(Z)$$, and use the generative network to obtain new samples $$X$$, which follow the same distribution as the train set. This could be used in many cases, e.g., incorporating external actions in the latent space (someone pushes the pendulum in some direction, or infuses medicine to a pateint).
-2. Given a new signal $$X$$, we could test if this signal is likely to have the same properties as our dataset by testing $$q(Z|X)$$. This could help us give an uncertainty score for new given signals during test time.
+2. Given a new signal $$X$$, we could test if this signal is likely to have the same properties as our dataset by testing the posterior distribution.
 
 #### Any caveats?
 Standatd VAEs assume that the latent space $$Z$$ is abstract and does not have any physical meaning. Hence usually assumes a prior: $$z \sim N(0,I)$$, for making the $$ELBO$$ loss analyticaly solveable. In our case the latent space has a physical meaning! The pendulum length for example cannot be negative. <br>
