@@ -76,19 +76,21 @@ Using the ODE solver means that we could compute $$z_t$$ in any arbitarary time,
 </p>
 <br>
 ### The entire model
-The entire model, with a more details is therefore:
-<img src="model.png" align="middle" width=800>
-The left part is the inference model, and the right part is the generative model. 
-<br>
 Until now, we only introduced the auto-encoder model, but where is the variational part? and why do we even need it to be variational? <br>
 #### Why _variational_ autoencoder?
 There are maby answers to _why_ variational autoencoder and not a simple autoencoder, as been studied over the last several years since the original variational autoencoder works introduced by [Rezendes et al (2014)](https://arxiv.org/abs/1401.4082), and [Kingma & Welling (2013)](https://arxiv.org/abs/1312.6114).
 Variational-autoencoders are capable of learning the probability **$$p(X)$$** on the given signal space, by maximizing the $$ELBO$$ loss. It is also capable of learning the likelihood probability **$$p(X|Z)$$**, and learn an approximation of the posterior probability **$$q(Z|X)$$** (for more information I encourage the reader the read the VAE papers above, or [this](https://arxiv.org/abs/1606.05908) great tutorial). <br>
 Using VAEs therefore gives us two important abilities:
 1. We could sample $$p(Z)$$, and use the generative network to obtain new samples $$X$$, which follow the same distribution as the train set. This could be used in many cases, e.g., incorporating external actions in the latent space (someone pushes the pendulum in some direction, or infuses medicine to a pateint).
-2. Given a new signal $$X$$, we could test if this signal is likelihood to have the same properties as our dataset by testing $$q(Z|X)$$.
+2. Given a new signal $$X$$, we could test if this signal is likely to have the same properties as our dataset by testing $$q(Z|X)$$. This could help us give an uncertainty score for new given signals during test time.
 
 #### Any caveats?
 Standatd VAEs assume that the latent space $$Z$$ is abstract and does not have any physical meaning. Hence usually assumes a prior: $$z \sim N(0,I)$$, for making the $$ELBO$$ loss analyticaly solveable. In our case the latent space has a physical meaning! The pendulum length for example cannot be negative. <br>
 This problem requires some workaround so that the latent space would still retain it's physical meaning. To this end, we introduced a new latent space comprised of **$$\tilde{z_0}$$** and **$$\tilde{\theta_f}$$**, both have the standard normal distribution prior. and added two NNs that transform the sampled $$\tilde{z_0}$$ and $$\tilde{\theta_f}$$ into $$z_0$$ and $$\theta_f$$. Meaning these NNs goal is to transform the standard normal distribution into the real distribution over latent space.
+
+The entire model is therefore:
+<img src="model.png" align="middle" width=800>
+The left part is the inference model, and the right part is the generative model. 
+<br>
+
  
