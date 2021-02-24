@@ -67,12 +67,28 @@ The inference model consumes the observed signal, and aims to infer the ODE's st
 <img src="inference_model.png" width=300>
 </p>
 <br>
-We next use the infered initial ODE value and parameters, combined with the ODE functional form to create a trajectory of the latent signal **$$Z$$**. The latent signal then serves as an input to a generative net producing a reconstructed signal **$$\hat{X}$$**.
+We next use the infered initial ODE value **$$z_0$$** and parameters **$$\theta_f$$**, combined with the ODE functional form **$$f$$** to create a trajectory of the latent signal **$$Z$$**. This is done by using an ODE solver (could be a simple euler-like ODE integrator, or a more advanced one as introducted by Chen et al (2018) in the [Neural ODE paper](https://arxiv.org/abs/1806.07366)).
+<br>
+The latent signal **$$Z$$** then serves as an input to a generative net **$$g$$** producing a reconstructed signal **$$\hat{X}$$**.
+Using the ODE solver means that we could compute $$z_t$$ in any arbitarary time, specificaly far forward time which could be very beneficial in the healthcare scenario.
 <p align="center">
-<img src="generative_model.png" width=300>
+<img src="generative_model.png" width=400>
 </p>
 <br>
-The entire model, with a bit more details is therefore:
+### The entire model
+The entire model, with a more details is therefore:
 <img src="model.png" align="middle" width=800>
-The left part is the 
+The left part is the inference model, and the right part is the generative model. 
+<br>
+Until now, we only introduced the auto-encoder model, but where is the variational part? and why do we even need it to be variational? <br>
+#### Why _variational_ autoencoder?
+There are maby answers to _why_ variational autoencoder and not a simple autoencoder, as been studied over the last several years since the original variational autoencoder works introduced by [Rezendes et al (2014)](https://arxiv.org/abs/1401.4082), and [Kingma & Welling (2013)](https://arxiv.org/abs/1312.6114).
+Variational-autoencoders are capable of learning the probability **$$p(X)$$** on the given signal space, by maximizing the $$ELBO$$ loss. It is also capable of learning the likelihood probability **$$p(X|Z)$$**, and learn an approximation of the posterior probability **$$q(Z|X)$$** (for more information I encourage the reader the read the VAE papers above, or [this](https://arxiv.org/abs/1606.05908) great tutorial). <br>
+Using VAEs therefore gives us two important abilities:
+1. We could sample $$p(Z)$$, and use the generative network to obtain new samples $$X$$, which follow the same distribution as the train set. This could be used in many cases, e.g., incorporating external actions in the latent space (someone pushes the pendulum in some direction, or infuses medicine to a pateint).
+2. Given a new signal $$X$$, we could test if this signal is likelihood to have the same properties as our dataset by testing $$q(Z|X)$$.
 
+#### Any caveats?
+Standatd VAEs assume that the latent space $$Z$$ is abstract and does not have any physical meaning. Hence usually assumes a prior: $$z \sim N(0,I)$$, for making the $$ELBO$$ loss analyticaly solveable. In our case the latent space has a physical meaning! The pendulum length for example cannot be negative. <br>
+This problem requires some workaround so that the latent space would still retain it's physical meaning. To this end, we introduced a new latent space comprised of **$$\tilde{z_0}$$** and **$$\tilde{\theta_f}}$$**, both have the standard normal distribution prior. and added two NNs that transform the sampled $$\tilde{z_0}$$ and $$\tilde{\theta_f}}$$ into $$z_0$$ and $$\theta_f$$. Meaning these NNs goal is to transform the standard normal distribution into the real distribution over latent space.
+ 
