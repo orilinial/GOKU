@@ -86,11 +86,10 @@ Using VAEs therefore gives us two important abilities:
 
 #### Any caveats?
 Standatd VAEs assume that the latent space $$Z$$ is abstract and does not have any physical meaning. Hence usually assumes a prior: $$z \sim N(0,I)$$, for making the $$ELBO$$ loss analyticaly solveable. In our case the latent space has a physical meaning! The pendulum length for example cannot be negative. <br>
-This problem requires some workaround so that the latent space would still retain it's physical meaning. To this end, we introduced a new latent space comprised of **$$\tilde{z_0}$$** and **$$\tilde{\theta_f}$$**, both have the standard normal distribution prior. and added two NNs that transform the sampled $$\tilde{z_0}$$ and $$\tilde{\theta_f}$$ into $$z_0$$ and $$\theta_f$$. Meaning these NNs goal is to transform the standard normal distribution into the real distribution over latent space.
+This problem requires some workaround so that the latent space would still retain it's physical meaning. To this end, we introduced a new latent space comprised of **$$\tilde{z}_0$$** and **$$\tilde{\theta}_f$$**, both have the standard normal distribution prior. and added two NNs that transform the sampled $$\tilde{z}_0$$ and $$\tilde{\theta}_f$$ into $$z_0$$ and $$\theta_f$$. Meaning these NNs goal is to transform the standard normal distribution into the real distribution over latent space.
 
-The entire model is therefore:
-<img src="model.png" align="middle" width=800>
-The left part is the inference model, and the right part is the generative model. 
-<br>
+## Experiments
+We tested GOKU on multiple domains agains various baselines.
 
- 
+### Experiment 1: Cardiovascular system
+We start off with the experiment that motivated this work - the cardiovascular system. <br>
