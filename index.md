@@ -89,7 +89,16 @@ Standatd VAEs assume that the latent space $$Z$$ is abstract and does not have a
 This problem requires some workaround so that the latent space would still retain it's physical meaning. To this end, we introduced a new latent space comprised of **$$\tilde{z}_0$$** and **$$\tilde{\theta}_f$$**, both have the standard normal distribution prior. and added two NNs that transform the sampled $$\tilde{z}_0$$ and $$\tilde{\theta}_f$$ into $$z_0$$ and $$\theta_f$$. Meaning these NNs goal is to transform the standard normal distribution into the real distribution over latent space.
 
 ## Experiments
-We tested GOKU on multiple domains agains various baselines.
+We tested GOKU on multiple domains against various baselines. 
+In these experiments we aimed to test a few things:
+1. The methods ability to predict observed signals.
+2. Whether it is possible to infer the ODE parameters. 
+3. Would adding mechanistic knowledge could enable using smaller train sets.
+4. What happens if the given ODE model is not the correct one, but only an approximation. 
 
 ### Experiment 1: Cardiovascular system
 We start off with the experiment that motivated this work - the cardiovascular system. <br>
+The ODE system involves a few medical variables and parameters, and was developed by [Zenker et al.](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.0030204)
+<img src="cvs_model.png" width=400>
+<br>
+ 
